@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fast Bite - Fast Food. Fast Delivery.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #ff4444;
+      --secondary: #ffcc00;
+      --dark: #2d3436;
+      --light: #f8f9fa;
+      --gray: #dfe6e9;
+      --text-gray: #636e72;
+      --shadow: 0 4px 15px rgba(0,0,0,0.1);
+      --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background-color: var(--light); color: var(--dark); padding-bottom: 80px; }
+    .hidden { display: none !important; }
+    .container { padding: 20px; max-width: 480px; margin: 0 auto; background: #fff; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+    button { cursor: pointer; border: none; outline: none; transition: 0.2s; }
+
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px 0; margin-bottom: 10px; position: sticky; top: 0; background: #fff; z-index: 100;
+    }
+    .app-name { font-weight: 800; font-size: 1.5rem; color: var(--primary); }
+    .cart-icon { position: relative; font-size: 1.2rem; color: var(--dark); }
+    .badge { position: absolute; top: -8px; right: -8px; background: var(--primary); color: white; font-size: 0.7rem; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+    .banner {
+      background: linear-gradient(135deg, var(--primary), #ff6b6b); color: white; padding: 30px 20px;
+      border-radius: var(--radius); margin-bottom: 25px; box-shadow: var(--shadow); overflow: hidden;
+    }
+    .banner h2 { font-size: 1.8rem; line-height: 1.2; margin-bottom: 5px; }
+    .banner p { font-size: 0.9rem; opacity: 0.9; }
+
+    .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+
+    .categories-wrapper { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px; scrollbar-width: none; }
+    .categories-wrapper::-webkit-scrollbar { display: none; }
+    .cat-item { display: flex; flex-direction: column; align-items: center; min-width: 70px; }
+    .cat-icon {
+      width: 60px; height: 60px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid var(--gray); margin-bottom: 8px; color: var(--primary); transition: 0.2s;
+    }
+    .cat-item.active .cat-icon { background: var(--primary); color: white; border-color: var(--primary); }
+    .cat-name { font-size: 0.8rem; color: var(--text-gray); font-weight: 500; }
+
+    .items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .food-card { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: 0.3s; border: 1px solid #eee; cursor: pointer; }
+    .food-card:hover { transform: translateY(-3px); }
+    .food-img { width: 100%; height: 120px; object-fit: cover; background: #eee; }
+    .food-info { padding: 12px; }
+    .food-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .food-price { color: var(--primary); font-weight: 700; font-size: 0.9rem; }
+
+    .back-btn { font-size: 1.2rem; color: var(--dark); background: none; padding: 10px 0; }
+    .detail-img { width: 100%; height: 250px; object-fit: cover; border-radius: var(--radius); margin-bottom: 20px; }
+    .detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .detail-price { font-size: 1.5rem; color: var(--primary); font-weight: 700; }
+    .qty-selector { display: flex; align-items: center; gap: 15px; background: var(--gray); padding: 5px 10px; border-radius: 30px; width: fit-content; margin: 20px 0; }
+    .qty-btn { width: 30px; height: 30px; background: white; border-radius: 50%; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .ingredients { margin-bottom: 80px; }
+    .ingredients h4 { margin-bottom: 10px; }
+    .ing-tag { display: inline-block; background: #fff4e6; color: #e67e22; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; margin: 0 5px 5px 0; }
+
+    .add-to-cart-float {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      width: 90%; max-width: 440px; background: var(--primary); color: white; padding: 15px;
+      border-radius: 30px; font-weight: 600; font-size: 1rem; box-shadow: 0 10px 20px rgba(255, 68, 68, 0.3);
+      display: flex; justify-content: center; align-items: center; gap: 10px; z-index: 999;
+    }
+
+    .cart-item { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+    .cart-img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; }
+    .bill-section { background: var(--light); padding: 20px; border-radius: var(--radius); margin-top: 30px; }
+    .bill-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
+    .bill-row.total { font-weight: 700; font-size: 1.1rem; color: var(--primary); border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px; }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 0.85rem; color: var(--text-gray); margin-bottom: 5px; }
+    .form-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 0.95rem; background: #fafafa; }
+    .form-input:focus { border-color: var(--primary); background: white; }
+    .payment-option { border: 1px solid #ddd; padding: 15px; border-radius: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s; }
+    .payment-option.selected { border-color: var(--primary); background: #fff5f5; }
+    .jazzcash-msg { background: #e3f2fd; border: 1px solid #90caf9; padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 0.9rem; }
+    .jazzcash-msg strong { color: #0d47a1; }
+    .checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+
+    .success-wrapper { text-align: center; padding-top: 50px; }
+    .check-icon { width: 80px; height: 80px; background: #2ecc71; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 20px; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header id="main-header">
+      <div class="app-name">Fast Bite</div>
+      <div class="cart-icon" onclick="showScreen('cart-screen')">
+        <i class="fas fa-shopping-bag"></i>
+        <div class="badge" id="cart-count">0</div>
+      </div>
+    </header>
+
+    <section id="home-screen">
+      <div class="banner">
+        <h2>Fast Food.<br>Fast Delivery.</h2>
+        <p>Craving something delicious? We got you.</p>
+      </div>
+
+      <div class="section-title"><span>Categories</span></div>
+      <div class="categories-wrapper">
+        <div class="cat-item active" onclick="filterCategory('all', this)"><div class="cat-icon"><i class="fas fa-utensils"></i></div><span class="cat-name">All</span></div>
+        <div class="cat-item" onclick="filterCategory('burgers', this)"><div class="cat-icon"><i class="fas fa-hamburger"></i></div><span class="cat-name">Burgers</span></div>
+        <div class="cat-item" onclick="filterCategory('pizza', this)"><div class="cat-icon"><i class="fas fa-pizza-slice"></i></div><span class="cat-name">Pizza</span></div>
+        <div class="cat-item" onclick="filterCategory('fries', this)"><div class="cat-icon"><i class="fas fa-box"></i></div><span class="cat-name">Fries</span></div>
+        <div class="cat-item" onclick="filterCategory('shawarma', this)"><div class="cat-icon"><i class="fas fa-bread-slice"></i></div><span class="cat-name">Shawarma</span></div>
+      </div>
+
+      <div class="section-title" style="margin-top: 25px;"><span>Popular Items</span></div>
+      <div class="items-grid" id="products-container"></div>
+    </section>
+
+    <section id="details-screen" class="hidden">
+      <button class="back-btn" onclick="showScreen('home-screen')"><i class="fas fa-arrow-left"></i> Back</button>
+      <div id="detail-content"></div>
+    </section>
+
+    <section id="cart-screen" class="hidden">
+      <button class="back-btn" onclick="showScreen('home-screen')"><i class="fas fa-arrow-left"></i> Back to Menu</button>
+      <h2 style="margin-bottom: 20px;">Your Cart</h2>
+      <div id="cart-items-container"></div>
+      <div class="bill-section">
+        <div class="bill-row"><span>Subtotal</span><span id="cart-subtotal">PKR 0</span></div>
+        <div class="bill-row"><span>Delivery Fee</span><span>PKR 150</span></div>
+        <div class="bill-row total"><span>Total</span><span id="cart-total">PKR 0</span></div>
+      </div>
+      <button class="add-to-cart-float" onclick="showScreen('checkout-screen')" style="background: var(--secondary); color: var(--dark);">Proceed to Checkout</button>
+    </section>
+
+    <section id="checkout-screen" class="hidden">
+      <button class="back-btn" onclick="showScreen('cart-screen')"><i class="fas fa-arrow-left"></i> Back to Cart</button>
+      <h2 style="margin-bottom: 20px;">Checkout</h2>
+      <form id="checkout-form" onsubmit="placeOrder(event)">
+        <div class="form-group"><label>Full Name</label><input type="text" class="form-input" id="customer-name" placeholder="e.g. Ali Khan" required></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" class="form-input" id="customer-phone" placeholder="0300 1234567" required></div>
+        <div class="form-group"><label>Delivery Address</label><textarea class="form-input" id="customer-address" rows="3" placeholder="House #, Street, Area..." required></textarea></div>
+        <div class="form-group">
+          <label>Payment Method</label>
+          <div class="payment-methods">
+            <div class="payment-option" onclick="selectPayment('jazzcash', this)"><i class="fas fa-mobile-alt" style="color: #e61c34;"></i> JazzCash</div>
+            <div class="payment-option" onclick="selectPayment('easypaisa', this)"><i class="fas fa-mobile-alt" style="color: #43a047;"></i> EasyPaisa</div>
+            <div class="payment-option selected" onclick="selectPayment('cod', this)"><i class="fas fa-money-bill-wave" style="color: #f39c12;"></i> Cash on Delivery</div>
+          </div>
+        </div>
+        <div id="digital-payment-info" class="hidden">
+          <div class="jazzcash-msg">
+            Send payment to:<br><strong>03125268003 – Qazi Abdul Hadi</strong>
+            <div class="checkbox-group"><input type="checkbox" id="paid-checkbox"><label for="paid-checkbox">I have made the payment</label></div>
+          </div>
+        </div>
+        <button type="submit" class="add-to-cart-float">Place Order</button>
+      </form>
+    </section>
+
+    <section id="success-screen" class="hidden">
+      <div class="success-wrapper">
+        <div class="check-icon"><i class="fas fa-check"></i></div>
+        <h2 style="color: var(--primary);">Order Placed!</h2>
+        <p style="color: var(--text-gray); margin: 10px 0;">Your food is being prepared.</p>
+        <div style="background: #f1f2f6; padding: 15px; border-radius: 10px; margin: 20px 0;">
+          <i class="fas fa-motorcycle" style="color: var(--dark);"></i> <strong>Estimated Delivery: 30 mins</strong>
+        </div>
+        <button class="add-to-cart-float" onclick="location.reload()">Track Order (Dummy)</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Firebase SDK + Realtime Database -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBsPI6Nc51Wf68DKpPYDeOP4wy45vA3qAM",
+      authDomain: "database-22e89.firebaseapp.com",
+      projectId: "database-22e89",
+      storageBucket: "database-22e89.firebasestorage.app",
+      messagingSenderId: "130746493100",
+      appId: "1:130746493100:web:a78773e8ddcfc986a2d709",
+      measurementId: "G-VT6NXZNNG9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getDatabase(app);
+
+    window.saveOrderToFirebase = async (orderData) => {
+      try {
+        const ordersRef = ref(db, 'orders');
+        await push(ordersRef, orderData);
+        console.log("Order saved to Firebase!");
+        return true;
+      } catch (error) {
+        console.error("Save failed:", error);
+        alert("Order placed but failed to save online. Try again.");
+        return false;
+      }
+    };
+  </script>
+
+  <script>
+    const products = [
+      { id: 1, name: "Zinger Burger", price: 550, cat: "burgers", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400", desc: "Crispy fried chicken fillet with cheese and mayo.", ing: ["Chicken", "Cheese", "Lettuce", "Mayo"] },
+      { id: 2, name: "Beef Cheese", price: 750, cat: "burgers", img: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=400", desc: "Juicy beef patty with melted cheddar.", ing: ["Beef Patty", "Cheddar", "Onion", "Sauce"] },
+      { id: 3, name: "Chicken Fajita", price: 1200, cat: "pizza", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400", desc: "Spicy chicken chunks with onions and capsicum.", ing: ["Chicken", "Cheese", "Onion", "Capsicum"] },
+      { id: 4, name: "Pepperoni Feast", price: 1400, cat: "pizza", img: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400", desc: "Loaded with double pepperoni slices.", ing: ["Pepperoni", "Mozzarella", "Tomato Sauce"] },
+      { id: 5, name: "Loaded Fries", price: 600, cat: "fries", img: "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=400", desc: "Fries topped with cheese sauce and jalapeños.", ing: ["Potatoes", "Cheese Sauce", "Jalapeños"] },
+      { id: 6, name: "Chicken Shawarma", price: 300, cat: "shawarma", img: "https://images.unsplash.com/photo-1664456670130-4e55db45bb84?w=400", desc: "Classic arabic shawarma with garlic sauce.", ing: ["Chicken", "Pita", "Garlic Sauce", "Pickles"] },
+    ];
+
+    let cart = [], currentPaymentMethod = 'cod', currentProduct = null, qty = 1;
+
+    window.onload = () => renderProducts(products);
+
+    function showScreen(id) {
+      document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      document.getElementById('main-header').style.display = (id === 'success-screen') ? 'none' : 'flex';
+      window.scrollTo(0,0);
+    }
+
+    function renderProducts(items) {
+      const c = document.getElementById('products-container'); c.innerHTML = '';
+      items.forEach(p => c.innerHTML += `<div class="food-card" onclick="openProduct(${p.id})">
+        <img src="${p.img}" class="food-img" alt="${p.name}">
+        <div class="food-info"><div class="food-name">${p.name}</div><div class="food-price">PKR ${p.price}</div></div></div>`);
+    }
+
+    function filterCategory(cat, el) {
+      document.querySelectorAll('.cat-item').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderProducts(cat === 'all' ? products : products.filter(p => p.cat === cat));
+    }
+
+    function openProduct(id) {
+      currentProduct = products.find(p => p.id === id); qty = 1;
+      const ing = currentProduct.ing.map(i => `<span class="ing-tag">${i}</span>`).join('');
+      document.getElementById('detail-content').innerHTML = `
+        <img src="${currentProduct.img}" class="detail-img">
+        <div class="detail-header"><h1 style="font-size:1.5rem">${currentProduct.name}</h1><span class="detail-price">PKR ${currentProduct.price}</span></div>
+        <p style="color:var(--text-gray);margin-bottom:15px">${currentProduct.desc}</p>
+        <div class="ingredients"><h4>Ingredients</h4>${ing}</div>
+        <div class="qty-selector">
+          <button class="qty-btn" onclick="updateQty(-1)">-</button>
+          <span id="qty-display">1</span>
+          <button class="qty-btn" onclick="updateQty(1)">+</button>
+        </div>
+        <button class="add-to-cart-float" onclick="addToCart()">Add to Cart - PKR <span id="btn-price">${currentProduct.price}</span></button>`;
+      showScreen('details-screen');
+    }
+
+    function updateQty(n) { if (qty + n > 0) { qty += n; document.getElementById('qty-display').innerText = qty; document.getElementById('btn-price').innerText = qty * currentProduct.price; } }
+    function addToCart() {
+      const ex = cart.find(i => i.product.id === currentProduct.id);
+      ex ? ex.qty += qty : cart.push({product: currentProduct, qty});
+      updateCartUI(); showScreen('home-screen');
+    }
+
+    function updateCartUI() {
+      const totalQty = cart.reduce((s,i) => s + i.qty, 0);
+      document.getElementById('cart-count').innerText = totalQty;
+      const c = document.getElementById('cart-items-container'); c.innerHTML = '';
+      let sub = 0;
+      if (!cart.length) c.innerHTML = '<div style="text-align:center;padding:30px;color:#999">Cart is empty</div>';
+      cart.forEach((i, idx) => {
+        const line = i.product.price * i.qty; sub += line;
+        c.innerHTML += `<div class="cart-item">
+          <img src="${i.product.img}" class="cart-img">
+          <div class="cart-details">
+            <div class="food-name">${i.product.name}</div>
+            <div style="color:#999;font-size:0.8rem">PKR ${i.product.price} × ${i.qty}</div>
+            <div class="cart-action"><span style="font-weight:600;color:var(--primary)">PKR ${line}</span>
+            <i class="fas fa-trash" style="color:#ff4444;cursor:pointer" onclick="removeFromCart(${idx})"></i></div>
+          </div></div>`;
+      });
+      document.getElementById('cart-subtotal').innerText = `PKR ${sub}`;
+      document.getElementById('cart-total').innerText = `PKR ${sub + 150}`;
+    }
+
+    function removeFromCart(i) { cart.splice(i,1); updateCartUI(); }
+
+    function selectPayment(m, el) {
+      currentPaymentMethod = m;
+      document.querySelectorAll('.payment-option').forEach(o => { o.classList.remove('selected'); o.style.background = 'white'; o.style.borderColor = '#ddd'; });
+      el.classList.add('selected'); el.style.background = '#fff5f5'; el.style.borderColor = 'var(--primary)';
+      document.getElementById('digital-payment-info').classList.toggle('hidden', m === 'cod');
+    }
+
+    async function placeOrder(e) {
+      e.preventDefault();
+      if (!cart.length) return alert("Cart is empty!");
+      if (['jazzcash','easypaisa'].includes(currentPaymentMethod) && !document.getElementById('paid-checkbox').checked)
+        return alert("Please confirm payment.");
+
+      const sub = cart.reduce((s,i) => s + i.product.price * i.qty, 0);
+      const orderData = {
+        customer: { name: document.getElementById('customer-name').value, phone: document.getElementById('customer-phone').value, address: document.getElementById('customer-address').value },
+        items: cart.map(i => ({ name: i.product.name, price: i.product.price, qty: i.qty, line: i.product.price * i.qty })),
+        paymentMethod: currentPaymentMethod,
+        subtotal: sub, deliveryFee: 150, total: sub + 150,
+        timestamp: new Date().toISOString(),
+        status: "new"
+      };
+
+      await window.saveOrderToFirebase(orderData);
+      showScreen('success-screen');
+      cart = []; updateCartUI();
+      document.getElementById('checkout-form').reset();
+    }
+  </script>
+</body>
+</html>
